@@ -1,5 +1,6 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     mode: 'production', // LE INDICO EL MODO EXPLICITAMENTE
@@ -23,6 +24,13 @@ module.exports = {
                 use: {
                     loader: 'babel-loader'
                 }
+            },
+            {
+                test: /\.css|.styl$/i,
+                use: [MiniCssExtractPlugin.loader,
+                'css-loader',
+                'stylus-loader'
+            ],
             }
         ]
     },
@@ -32,6 +40,7 @@ module.exports = {
             inject: 'body', // INYECTA EL BUNDLE AL TEMPLATE HTML
             template: './public/index.html', // LA RUTA AL TEMPLATE HTML
             filename: './index.html' // NOMBRE FINAL DEL ARCHIVO
-        })
+        }),
+        new MiniCssExtractPlugin(),
     ]
 }
