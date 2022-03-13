@@ -2,6 +2,8 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     mode: 'production', // LE INDICO EL MODO EXPLICITAMENTE
@@ -10,12 +12,19 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         // resolve lo que hace es darnos la ruta absoluta de el S.O hasta nuestro archivo
         // para no tener conflictos entre Linux, Windows, etc
-        filename: 'main.js', 
+        filename: '[name].[contenthash].js', 
         // EL NOMBRE DEL ARCHIVO FINAL,
-        assetModuleFilename: 'assets/[hash][ext][query]'
+        // assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
-        extensions: ['.js'] // LOS ARCHIVOS QUE WEBPACK VA A LEER
+        extensions: ['.js'], // LOS ARCHIVOS QUE WEBPACK VA A LEER
+        alias: {
+            '@utils': path.resolve(__dirname, 'src/utils/'),
+            '@templates': path.resolve(__dirname, 'src/templates/'),
+            '@styles': path.resolve(__dirname, 'src/styles/'),
+            '@images': path.resolve(__dirname, 'src/assets/images'),
+
+        }
     },
     module: {
         // REGLAS PARA TRABAJAR CON WEBPACK
@@ -58,7 +67,9 @@ module.exports = {
             template: './public/index.html', // LA RUTA AL TEMPLATE HTML
             filename: './index.html' // NOMBRE FINAL DEL ARCHIVO
         }),
-        new MiniCssExtractPlugin(),
+        new MiniCssExtractPlugin({
+            filename: 'assets/[name].[contenthash].css'
+        }),
 
         //Se esta usando el loader natural de imagenes de webpack, que las genera con un hash uncico para que se usen estas en el proyecto, asi que no es necesario el plubin para copiar
         // new CopyPlugin({
@@ -69,5 +80,12 @@ module.exports = {
         //         }
         //     ]
         // })
-    ]
+    ],
+    optimization: {
+        minimize: true,
+        minimizer: [
+            new CssMinimizerPlugin(),
+            new TerserPlugin(),
+        ]
+    }
 }
