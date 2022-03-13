@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'production', // LE INDICO EL MODO EXPLICITAMENTE
@@ -11,6 +12,7 @@ module.exports = {
         // para no tener conflictos entre Linux, Windows, etc
         filename: 'main.js', 
         // EL NOMBRE DEL ARCHIVO FINAL,
+        assetModuleFilename: 'assets/[hash][ext][query]'
     },
     resolve: {
         extensions: ['.js'] // LOS ARCHIVOS QUE WEBPACK VA A LEER
@@ -31,7 +33,22 @@ module.exports = {
                 'css-loader',
                 'stylus-loader'
             ],
-            }
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
+                //Se esta usando la propiedad assetModuleFilename para asignar el directorio de salida de las imagenes, asi que no es necesario usar generator - filename
+                // generator: {
+                //   filename: 'static/images/[hash][ext][query]',
+                // },
+            },
+            { //Desde webpack 5 url-loader y file-loader viene ya incorporadors, dejando la configuramcion mas sencilla
+                test: /\.(woff|woff2)$/i,  // Tipos de fuentes a incluir
+                type: 'asset/resource',  // Tipo de módulo a usar (este mismo puede ser usado para archivos de imágenes)
+                generator: {
+                  filename: 'assets/fonts/[hash][ext][query]',  // Directorio de salida
+                },
+              },
         ]
     },
     // SECCION DE PLUGINS
@@ -42,5 +59,15 @@ module.exports = {
             filename: './index.html' // NOMBRE FINAL DEL ARCHIVO
         }),
         new MiniCssExtractPlugin(),
+
+        //Se esta usando el loader natural de imagenes de webpack, que las genera con un hash uncico para que se usen estas en el proyecto, asi que no es necesario el plubin para copiar
+        // new CopyPlugin({
+        //     patterns: [
+        //         {
+        //             from: path.resolve(__dirname, "src", "assets/images"),
+        //             to: "assets/images"
+        //         }
+        //     ]
+        // })
     ]
 }
